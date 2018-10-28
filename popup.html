@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.2/css/all.css" integrity="sha384-/rXc/GQVaYpyDdyxK+ecHPVYJSN9bmVFBvjA/9eOB+pb3F2w2N6fc5qB9Ew5yIns"
+	 crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Lato" />
+	<style>
+		body {
+			margin: 0;
+			padding: 0;
+			align-items: center;
+    }
+    #search {
+        background: #ffffff;
+        align-items: center;
+        border: 0;
+        color: #efefef;
+        justify-content: space-between;
+        padding: 1em 3em 1em 1em;
+        transition: all 0.5s;
+    }
+    input {
+      font: 20px/1.375 "Lato", arial, sans-serif;
+      background: inherit;
+      color: #4095d8;
+      border: 0;
+      outline: 0;
+      padding: 10px 10px 10px 10px;
+    }
+    table {
+		border: #e4e4e4;
+		border-style: solid;
+		order-width: thin;
+		display: flex;
+		flex-flow: column nowrap;
+		justify-content: space-between;
+        padding: 10px 10px 10px 10px;
+		font-size: 18px;
+		line-height: 1.2;
+		font-weight: unset !important;
+        width: 500px;
+    }
+	.row {
+		display: flex;
+		flex-flow: row nowrap;
+		padding: 1em 3em 1em 1em;
+		font-size: 14px;
+	}
+	.row:focus {
+		background: #e8e8e8;
+	}
+  </style>
+</head>
+
+<body>
+	<div id="search">
+		<input id="searchInput" type="text" placeholder="Search.." autofocus>
+	</div>
+
+	<table id="resultsTable" class="table">
+	</table>
+
+</body>
+
+<script src="popup.js"></script>
+<script type="text/javascript" src="js/fuzzy.js"></script>

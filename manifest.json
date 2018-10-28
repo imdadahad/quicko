@@ -1,0 +1,27 @@
+{
+    "name": "Quicko",
+    "version": "1.0",
+    "description": "Quickly navigate to bookmarks, tabs and pages in your history.",
+    "permissions": [
+        "storage",
+        "bookmarks"
+    ],
+    "background": {
+        "scripts": [
+            "background.js"
+        ],
+        "persistent": false
+    },
+    "browser_action": {
+        "default_popup": "popup.html"
+    },
+    "manifest_version": 2,
+    "commands": {
+        "_execute_browser_action": {
+            "suggested_key": {
+                "windows": "Ctrl+Shift+K",
+                "mac": "Ctrl+Shift+K"
+            }
+        }
+    }
+}
