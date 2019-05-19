@@ -1,68 +1,60 @@
-var bookmarks = [];
-
+const fuzzyOptions = { extract: ({ title }) => title }
 const ARROW_DOWN_KEY_CODE = 'ArrowDown'
 const ARROW_UP_KEY_CODE = 'ArrowUp'
 const ENTER_KEY_CODE = 'Enter'
 
-let searchInput = document.getElementById('searchInput');
-let tableRef = document.getElementById('resultsTable');
+const searchInputRef = document.getElementById('searchInput')
+const listRef = document.getElementById('resultsTable')
+let bookmarks = []
 let justLoaded = true
 let goToIndex = 0
 
-let fuzzyOptions = {
-    extract: function (el) { return el.title; }
-};
+const openURL = (url) => window.open(url, '_blank').focus()
 
-document.addEventListener('keydown', function (key) {
-    if (key.code == ARROW_DOWN_KEY_CODE) {
-        if (justLoaded) {
-            tableRef.rows[goToIndex].focus()
-            justLoaded = false
-        } else {
-            goToIndex += 1
-            tableRef.rows[goToIndex].focus()
-        }
-    } else if (key.code == ARROW_UP_KEY_CODE) {
-        if (goToIndex > 0) {
-            goToIndex -= 1
-            tableRef.rows[goToIndex].focus()
-        }
-    } else if (key.code == ENTER_KEY_CODE) {
-        openURL(bookmarks[tableRef.rows[goToIndex].id].url)
-    } else {
-        goToIndex = 0 // reset the index for a new search
-        justLoaded = true
-        searchInput.focus()
-    }
-}, false);
+const setOnClick = (url) => () => openURL(url)
 
-populateBookmarks()
-console.log(bookmarks)
+const log = (arg) => chrome.extension.getBackgroundPage().console.log(arg)
 
-searchInput.onkeydown = function (element) {
-    var results = []
-    while (tableRef.rows.length > 0) {
-        tableRef.deleteRow(0);
-    }
-    var searchText = element.target.value
-    let fuzzyResults = fuzzy.filter(searchText, bookmarks, fuzzyOptions);
-    fuzzyResults.map(function (el) {
-        results.push(el)
-    });
-    for (var i = 0; i < results.length; i++) {
-        let result = results[i]
-        var newRow = tableRef.insertRow(i);
+const onTextInput = (element) => {
+    const searchText = element.target.value
+    let results = fuzzy.filter(searchText, bookmarks, fuzzyOptions)
+    listRef.innerHTML = ""
+    results.forEach((result, i) => {
+        const newRow = document.createElement("div")
         newRow.id = result.index
         newRow.className = 'row'
-        newRow.innerHTML = `${result.original.title}`;
-        newRow.addEventListener("click", function () {
-            openURL(result.original.url)
-        })
-        newRow.tabIndex = i
-    }
-};
+        newRow.innerText = `${ result.original.title }`
+        newRow.addEventListener("click", setOnClick(result.original.url))
+        newRow.tabIndex = 0
+        listRef.appendChild(newRow)
+    })
+    log(results)
+    justLoaded = true
+}
 
-function populateBookmarks() {
+const onKeyPress = (key) => {
+    const finalIndex = listRef.children.length - 1
+    if (key.code == ARROW_DOWN_KEY_CODE) {
+        if (!justLoaded) {
+            goToIndex = goToIndex === finalIndex ? 0 : goToIndex + 1
+        }
+        listRef.children.item(goToIndex).focus()
+        justLoaded = false
+    } else if (key.code == ARROW_UP_KEY_CODE) {
+        goToIndex = goToIndex === 0 ? finalIndex : goToIndex - 1
+        listRef.children.item(goToIndex).focus()
+        justLoaded = false
+    } else if (key.code == ENTER_KEY_CODE) {
+        const itemId = listRef.children.item(goToIndex).id
+        openURL(bookmarks[itemId].url)
+    } else {
+        goToIndex = 0
+        justLoaded = true
+        searchInputRef.focus()
+    }
+}
+
+const populateBookmarks = () => {
     chrome.bookmarks.getTree(
         function (bookmarkTreeNodes) {
             for (var i = 0; i < bookmarkTreeNodes.length; i++) {
@@ -73,7 +65,7 @@ function populateBookmarks() {
     );
 }
 
-function processBookmarkNode(bookmarkNode) {
+const processBookmarkNode = (bookmarkNode) => {
     if (bookmarkNode.children) {
         processBookmarkNode(bookmarkNode.children)
     } else {
@@ -92,7 +84,6 @@ function processBookmarkNode(bookmarkNode) {
     }
 }
 
-function openURL(url) {
-    var win = window.open(url, '_blank');
-    win.focus();
-}
+document.addEventListener('keydown', onKeyPress, false)
+searchInputRef.addEventListener('keydown', onTextInput, false)
+populateBookmarks()
